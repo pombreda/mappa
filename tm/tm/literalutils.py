@@ -126,7 +126,7 @@ def normalize_decimal(val):
     ValueError: Illegal xsd:decimal: "A.b"
     """
     try:
-        res = str(Decimal(val))
+        res = str(Decimal(val.strip()))
     except InvalidOperation:
         raise ValueError('Illegal xsd:decimal: "%s"' % val)
     dot_idx = res.find('.')
