@@ -43,7 +43,7 @@ and `XML Topic Maps (XTM) 2.1 <http://www.isotopicmaps.org/sam/sam-xtm/2009-11-1
 from StringIO import StringIO
 import xml.sax.handler as sax_handler
 from xml.sax.saxutils import XMLGenerator
-from tm import TMDM, XSD, mio
+from tm import TMDM, XSD, mio, voc
 from tm.mio.deserializer import Context
 from tm.xmlutils import attributes
 from tm.irilib import resolve_iri
@@ -51,7 +51,7 @@ from tm.irilib import resolve_iri
 __all__ = ['XTM2ContentHandler']
 
 # XTM 2.0 namespace
-NS_XTM = 'http://www.topicmaps.org/xtm/'
+NS_XTM = voc.XTM
 
 # Constants for XTM elements.
 MERGE_MAP = 'mergeMap'

@@ -41,7 +41,7 @@ This module provides classes to read
 """
 import xml.sax as sax
 import xml.sax.handler as sax_handler
-from tm import TMDM, XSD, XTM_10, mio
+from tm import TMDM, XSD, XTM_10, mio, voc
 from tm.mio.deserializer import Context
 from tm.xmlutils import attributes
 from tm.irilib import resolve_iri
@@ -52,10 +52,10 @@ __all__ = ['XTM10ContentHandler']
 NS_XML = 'http://www.w3.org/XML/1998/namespace'
 
 # XTM 1.0 namespace
-NS_XTM = 'http://www.topicmaps.org/xtm/1.0/'
+NS_XTM = voc.XTM_10
 
 # XLink namespace
-NS_XLINK = 'http://www.w3.org/1999/xlink'
+NS_XLINK = voc.XLINK
 
 
 # Constants for XTM elements.
