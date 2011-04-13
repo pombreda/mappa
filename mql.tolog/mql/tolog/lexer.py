@@ -49,7 +49,7 @@ _END_OF_FRAGMENT = re.compile(r'$|\s+(?=from\s+(?!(.*?("|\.|\#))))', re.IGNORECA
 
 _IDENT = r'[_a-zA-Z][_\w\.-]*'
 
-_DATE = r'\-?[0-9]{4,}\-(0[1-9]|1[1-2])\-(0[1-9]|1[0-9]|2[0-9]|3[0-1])'
+_DATE = r'\-?(000[1-9]|00[1-9][0-9]|0[1-9][0-9][0-9]|[1-9][0-9][0-9][0-9]+)\-(0[1-9]|1[0-2])\-(0[1-9]|1[0-9]|2[0-9]|3[0-1])'
 # Timezone
 _TZ = r'Z|((\+|\-)[0-9]{2}:[0-9]{2})'
 # Time
@@ -244,7 +244,6 @@ def t_tm_error(t):
     raise Exception() #TODO
 
 if __name__ == '__main__':
-    from tmql.tolog import make_lexer
     test_data = [
                  'select $x from instance-of($x, $y)?',
                  'homepage($t, "http://www.semagia.com/")?',
@@ -289,7 +288,9 @@ not(located-in($PLACE : containee, italy : container))?''',
                  '1 -1  +1',
                  '1.1 +1.1 -1.1 .12',
                  ]
-    
+    import ply.lex as lex
+    def make_lexer():
+        return lex.lex()
     for data in test_data:
         lexer = make_lexer()
         lexer.input(data)
