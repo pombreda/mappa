@@ -281,7 +281,13 @@ class CTMHandler(mio_handler.HamsterMapHandler):
         if self.title or self.author or self.date or self.license or self.comment:
             write(u'#(%s' % _NL)
             if self.title:
-                write(u'Title:    %s%s' % (self.title, _NL))
+                title = self.title
+                sep = u'=' * len(title)
+                write(sep)
+                write(_NL)
+                write(u'%s%s' % (title, _NL))
+                write(sep)
+                write(_NL)
             if self.author:
                 write(u'Author:   %s%s' % (self.author, _NL))
             if self.date:
