@@ -15,6 +15,7 @@
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:tl="http://psi.semagia.com/tolog-xml/"
                 xmlns="http://psi.semagia.com/tolog-xml/"
+                xmlns:exsl="http://exslt.org/common"
                 exclude-result-prefixes="tl">
 
   <xsl:output method="xml" encoding="utf-8" standalone="yes"/>
@@ -52,7 +53,7 @@
           </xsl:for-each>
         </xsl:variable>
         <xsl:apply-templates select="$rule/tl:body/tl:*" mode="variable-replacement">
-          <xsl:with-param name="map" select="$rule2arg"/>
+          <xsl:with-param name="map" select="exsl:node-set($rule2arg)"/>
         </xsl:apply-templates>
       </xsl:when>
       <xsl:otherwise><xsl:copy-of select="."/></xsl:otherwise>
