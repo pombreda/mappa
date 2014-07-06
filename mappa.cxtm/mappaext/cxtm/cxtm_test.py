@@ -1,35 +1,9 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2007 - 2011 -- Lars Heuer - Semagia <http://www.semagia.com/>.
+# Copyright (c) 2007 - 2014 -- Lars Heuer - Semagia <http://www.semagia.com/>.
 # All rights reserved.
 #
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are
-# met:
-#
-#     * Redistributions of source code must retain the above copyright
-#       notice, this list of conditions and the following disclaimer.
-#
-#     * Redistributions in binary form must reproduce the above
-#       copyright notice, this list of conditions and the following
-#       disclaimer in the documentation and/or other materials provided
-#       with the distribution.
-#
-#     * Neither the name of the project nor the names of the contributors 
-#       may be used to endorse or promote products derived from this 
-#       software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# BSD license.
 #
 """\
 Utility functions to run CXTM tests.
@@ -48,6 +22,8 @@ from mappa import ModelConstraintViolation
 from .cxtm1 import CXTMTopicMapWriter
 from mappa.miohandler import MappaMapHandler
 
+_CXTM_TRUNK = u'cxtm-tests-code-179-trunk.zip'
+
 
 def get_baseline(filename):
     """\
@@ -55,20 +31,25 @@ def get_baseline(filename):
     """
     return os.path.abspath(os.path.dirname(filename) + '/../baseline/%s.cxtm' % os.path.basename(filename))
 
+
 def _download_cxtm_tests():
-    import urllib, tarfile, shutil
+    from zipfile import ZipFile
+    import urllib, shutil
     directory = os.path.abspath('./cxtm/')
-    archive_name = os.path.join(directory, 'cxtm-tests.tar.gz')
-    urllib.urlretrieve('http://cxtm-tests.svn.sourceforge.net/viewvc/cxtm-tests/trunk/?view=tar', archive_name)
-    archive = tarfile.open(archive_name)
+    archive_name = os.path.join(directory, 'cxtm-tests.zip')
+    sf_filename = _CXTM_TRUNK
+    urllib.urlretrieve('http://sourceforge.net/code-snapshots/svn/c/cx/cxtm-tests/code/%s' % sf_filename, archive_name)
+    archive = ZipFile(archive_name)
     archive.extractall(directory)
     archive.close()
-    trunk_dir = os.path.join(directory, 'trunk')
+    trunk_dir = os.path.join(directory, sf_filename[:sf_filename.rindex(u'.')])
     for f in os.listdir(trunk_dir):
         subdir = os.path.join(trunk_dir, f)
         if os.path.isdir(subdir) and f != 'web':
-            shutil.move(subdir, os.path.join(directory, f))
+            target = os.path.join(directory, f)
+            shutil.move(subdir, target)
     shutil.rmtree(trunk_dir)
+
 
 def find_cxtm_cases(directory, extension, subdir, exclude=None):
     """\
@@ -81,18 +62,21 @@ def find_cxtm_cases(directory, extension, subdir, exclude=None):
     for filename in (n for n in os.listdir(directory) if n.endswith(extension) and n not in exclude):
         yield os.path.join(directory, filename)
 
+
 def find_valid_cxtm_cases(directory, extension, exclude=None):
     """\
 
     """
     return find_cxtm_cases(directory, extension, 'in', exclude)
 
+
 def find_invalid_cxtm_cases(directory, extension, exclude=None):
     """\
 
     """
     return find_cxtm_cases(directory, extension, 'invalid', exclude)
-    
+
+
 def create_invalid_cxtm_cases(factory, directory, extension, exclude=None):
     """\
     Returns a generator for invalid CXTM test cases.
@@ -108,6 +92,7 @@ def create_invalid_cxtm_cases(factory, directory, extension, exclude=None):
     """
     for filename in find_invalid_cxtm_cases(directory, extension, exclude):
         yield check_invalid, factory(), filename
+
 
 def create_valid_cxtm_cases(factory, directory, extension, post_process=None, exclude=None):
     """\
@@ -126,6 +111,7 @@ def create_valid_cxtm_cases(factory, directory, extension, post_process=None, ex
     """
     for filename in find_valid_cxtm_cases(directory, extension, exclude):
         yield check_valid, factory(), filename, post_process
+
 
 def create_writer_cxtm_cases(writer_factory, deserializer_factory, directory, extension, post_process=None, exclude=None):
     """\
@@ -147,11 +133,13 @@ def create_writer_cxtm_cases(writer_factory, deserializer_factory, directory, ex
     for filename in find_valid_cxtm_cases(directory, extension, exclude):
         yield check_writer, writer_factory, deserializer_factory, filename, post_process
 
+
 def fail(msg):
     """\
 
     """
     raise AssertionError(msg)
+
 
 def check_writer(writer_factory, deser_factory, filename, post_process):
     conn = mappa.connect()
@@ -186,6 +174,7 @@ def check_writer(writer_factory, deser_factory, filename, post_process):
     if expected != res:
         fail('failed: %s.\nExpected: %s\nGot: %s\nGenerated topic map: %s' % (filename, expected, res, out.getvalue()))
 
+
 def check_valid(deserializer, filename, post_process=None):
     conn = mappa.connect()
     tm = conn.create('http://www.semagia.com/mappa-test-tm')
@@ -202,6 +191,7 @@ def check_valid(deserializer, filename, post_process=None):
     res = unicode(result.getvalue(), 'utf-8')
     if expected != res:
         fail(u'failed: %s.\nExpected: %s\nGot: %s' % (filename, expected, res))
+
 
 def check_invalid(deserializer, filename):
     conn = mappa.connect()
