@@ -12,7 +12,7 @@
 :organization: Semagia - <http://www.semagia.com/>
 :license:      BSD License
 """
-from tm import ANY
+from tm import ANY, mql
 from itertools import chain
 
 #TODO: This shouldn't belong to the mql.tolog package but to the generic mql package
@@ -285,14 +285,14 @@ class AdvancedTopicMapLayer(TopicMapLayer):
             return self.get_variants(tmc)
         elif self.is_topicmap(tmc):
             return chain(self.get_topics(types=types), self.get_associations(types=types))
-        else:
-            topic = self._topic(tmc)
-            if topic:
-                return self.get_topic_children(topic, types=types)
-            #TODO: Exception
+        topic = self._topic(tmc, force=True)
+        return self.get_topic_children(topic, types=types)
 
-    def _topic(self, tmc):
-        return tmc if self.is_topic(tmc) else self.get_reifier(tmc)
+    def _topic(self, tmc, force=False):
+        topic = tmc if self.is_topic(tmc) else self.get_reifier(tmc)
+        if force and topic is None:
+            raise mql.InvalidQueryError()  #TODO: Msg.
+        return topic
         
     def get_occurrences(self, tmc, types=ANY, scope=ANY):
         topic = self._topic(tmc)
